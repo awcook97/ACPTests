@@ -11,8 +11,6 @@ dependencies = [
     "textual",
     # File-change monitoring.
     "watchfiles",
-    # CLI ergonomics (optional; we keep argparse fallbacks in code).
-    "typer",
 ]
 
 [project.scripts]

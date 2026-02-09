@@ -1,0 +1,16 @@
+{
+  "workspace_root": ".",
+  "journal_path": "runs/latest/events.jsonl",
+  "watch_paths": [
+    "."
+  ],
+  "agents": [
+    {
+      "id": "echo-test",
+      "protocol": "echo",
+      "command": ["python3", "-c", "import sys\nfor line in sys.stdin:\n    print(f'Echo: {line.strip()}')"],
+      "cwd": ".",
+      "env": {}
+    }
+  ]
+}
