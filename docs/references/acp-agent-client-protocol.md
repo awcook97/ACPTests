@@ -2,9 +2,10 @@
 
 ## Official Docs
 
-- Protocol overview + spec: `https://agentclientprotocol.com/protocol`
-- Stdio transport (JSON-RPC over stdio): `https://agentclientprotocol.com/protocol/transport/stdio`
-- Python SDK: `https://agentclientprotocol.com/sdk/python`
+- Protocol overview: `https://agentclientprotocol.com/protocol/overview`
+- Initialization + lifecycle: `https://agentclientprotocol.com/protocol/initialization`
+- Transports (stdio, SSE, etc): `https://agentclientprotocol.com/protocol/transports`
+- Python library: `https://agentclientprotocol.com/libraries/python`
 
 ## Notes We Care About (Implementation-Relevant)
 
@@ -19,7 +20,7 @@
 - `agent-client-protocol` (PyPI): official Python types/client helpers.
 - `agent-client-kernel` (PyPI): example/infra for hosting ACP agents.
 - `codex-acp` (GitHub): bridge OpenAI Codex runtime to ACP clients over stdio.
-  `https://github.com/zduval/codex-acp`
+  `https://github.com/cola-io/codex-acp`
 
 ## "Thinking" / Intermediate Events
 

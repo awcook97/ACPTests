@@ -7,18 +7,17 @@
   "agents": [
     {
       "id": "codex",
-      "protocol": "acp",
-      "command": ["codex-acp", "--help"],
+      "protocol": "codex_app_server",
+      "command": ["codex", "app-server"],
       "cwd": ".",
       "env": {}
     },
     {
       "id": "copilot",
       "protocol": "acp",
-      "command": ["copilot-acp", "--help"],
+      "command": ["copilot", "--acp", "--stdio"],
       "cwd": ".",
       "env": {}
     }
   ]
 }
-

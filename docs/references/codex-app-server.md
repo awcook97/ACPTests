@@ -2,42 +2,40 @@
 
 ## Official Docs
 
-- OpenAI blog: "Unlocking the Codex harness: how we built the App Server" (Feb 4, 2026)
-  `https://openai.com/index/unlocking-the-codex-harness/`
-- Python client (community/officially maintained): `https://pypi.org/project/codex-sdk-python/`
+- Codex App Server: `https://developers.openai.com/codex/app-server`
 
-## Notes We Care About (Implementation-Relevant)
+## Key Implementation Notes
 
-- Transport: **JSONL over stdio** (bidirectional).
-- Protocol: a **"JSON-RPC lite"** shape (request/response/notification), but not strict JSON-RPC 2.0
-  (e.g. may omit `"jsonrpc": "2.0"`).
-- The server can send **notifications** for streaming/progress, and can also initiate requests when
-  it needs user input (e.g., approvals) and pause work until it receives a reply.
+- Transport: **newline-delimited JSON over stdio** (bidirectional).
+- Protocol: **JSON-RPC 2.0 semantics**, but messages **do not include** the `"jsonrpc": "2.0"` field.
+- Clean stdout: the server expects **only protocol messages on stdout**; logs should go to stderr.
+- Handshake:
+  - client sends `initialize`
+  - server replies `initialize` (response)
+  - client sends `initialized` (notification)
 
-### Conversation Primitives (Client Rendering Model)
+### Running The Server
 
-The protocol is designed around stable UI-friendly primitives:
-- **Thread**: durable container for a multi-turn session.
-- **Turn**: one unit of agent work initiated by user input.
-- **Item**: atomic unit of input/output within a turn (user message, agent message, tool exec, diff, approval request).
+The Codex CLI runs the app server on stdio:
 
-Items have an explicit lifecycle:
-- `item/started`
-- optional `item/*/delta` notifications (streaming)
-- `item/completed`
+```bash
+codex app-server
+```
 
-### Useful CLI Hooks
+The Codex CLI can also generate protocol bindings:
 
-From the Codex CLI, you can generate types/schemas for clients:
-- `codex app-server generate-ts`
-- `codex app-server generate-json-schema`
+```bash
+codex app-server generate-ts
+codex app-server generate-json-schema
+```
 
 ## Relevance To This Repo
 
-Even if our main hub speaks ACP to Codex/Copilot, the Codex App Server is a valuable reference for:
+Even if we primarily speak ACP to some agents, the Codex App Server is a strong reference for:
 - event-driven UI primitives (thread/turn/item)
 - streaming deltas and diffs
 - explicit approval flows (pausing/resuming turns)
 
-We should map both ACP events and Codex App Server events into the same internal `Event` model in
-`src/acp_hub/events.py`.
+We should map both ACP events and Codex App Server events into the same internal `Event` model in:
+- `src/acp_hub/events.py`
+
