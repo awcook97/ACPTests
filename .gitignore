@@ -1,0 +1,23 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# uv cache (keep project-local to avoid global cache permission issues)
+.uv-cache/
+
+# Runtime artifacts
+runs/
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+
+# Local config (copy from acp-hub.example.json)
+acp-hub.json
+acp_hub.json

@@ -1,0 +1,8 @@
+# Project-local uv settings.
+#
+# We prefer a repo-local cache to avoid permission issues with global caches in locked-down
+# environments, and we avoid automatic Python downloads.
+cache-dir = ".uv-cache"
+python-preference = "only-system"
+python-downloads = "never"
+

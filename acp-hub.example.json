@@ -1,0 +1,24 @@
+{
+  "workspace_root": ".",
+  "journal_path": "runs/latest/events.jsonl",
+  "watch_paths": [
+    "."
+  ],
+  "agents": [
+    {
+      "id": "codex",
+      "protocol": "acp",
+      "command": ["codex-acp", "--help"],
+      "cwd": ".",
+      "env": {}
+    },
+    {
+      "id": "copilot",
+      "protocol": "acp",
+      "command": ["copilot-acp", "--help"],
+      "cwd": ".",
+      "env": {}
+    }
+  ]
+}
+
