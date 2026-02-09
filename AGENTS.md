@@ -38,4 +38,6 @@ python3 -m unittest discover -s tests -v
 ## Protocols In Scope
 
 - ACP (Agent Client Protocol): see `docs/references/acp-agent-client-protocol.md`
-- Codex App Server (JSON-RPC lite over stdio): see `docs/references/codex-app-server.md`
+- Codex App Server (JSON-RPC over stdio): see `docs/references/codex-app-server.md`
+- Copilot ACP server mode: see `docs/references/copilot-acp-server.md`
+- CLI help captures: see `docs/references/codex-cli-help.md` and `docs/references/copilot-cli-help.md`
