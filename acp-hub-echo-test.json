@@ -1,15 +1,13 @@
 {
   "workspace_root": ".",
   "journal_path": "runs/latest/events.jsonl",
-  "watch_paths": [
-    "."
-  ],
+  "watch_paths": ["."],
+  "require_tool_approval": false,
+  "shell_allowlist": [],
   "agents": [
     {
       "id": "echo-test",
-      "protocol": "echo",
-      "command": ["python3", "-c", "import sys\nfor line in sys.stdin:\n    print(f'Echo: {line.strip()}')"],
-      "cwd": ".",
+      "agent": "echo",
       "env": {}
     }
   ]

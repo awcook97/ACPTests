@@ -42,7 +42,8 @@ class ManagedAgentProcess:
             raise RuntimeError(f"agent already started: {self.spec.id}")
 
         env = dict(self.spec.env) if self.spec.env else None
-        cwd = self.spec.cwd
+        # Agents run inside their own sandbox — never an arbitrary cwd.
+        cwd = str(self.spec.sandbox)
 
         self._proc = await asyncio.create_subprocess_exec(
             *self.spec.command,

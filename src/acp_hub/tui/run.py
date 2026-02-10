@@ -80,7 +80,12 @@ def run_tui(cfg: HubConfig) -> int:
             self.hub_config = hub_config
             self.bus = EventBus()
             self.journal = JsonlJournal(path=hub_config.journal_path)
-            self.tool_runner = ToolRunner(self.bus, cwd=str(hub_config.workspace_root))
+            self.tool_runner = ToolRunner(
+                self.bus,
+                workspace_root=str(hub_config.workspace_root),
+                shell_allowlist=hub_config.shell_allowlist,
+                require_approval=hub_config.require_tool_approval,
+            )
             self._agents: dict[str, ManagedAgentProcess] = {}
             self._adapters: dict[str, ProtocolAdapter] = {}
             self._router: Router | None = None
@@ -214,7 +219,11 @@ def run_tui(cfg: HubConfig) -> int:
         async def _handle_tool_call(self, agent_id: str, msg: dict[str, Any]) -> None:
             adapter = self._adapters[agent_id]
             corr_id, tool_name, args = adapter.extract_tool_call(msg)
-            result = await self.tool_runner.execute(agent_id, tool_name, args, corr_id)
+            agent_proc = self._agents[agent_id]
+            result = await self.tool_runner.execute(
+                agent_id, tool_name, args, corr_id,
+                sandbox=agent_proc.spec.sandbox,
+            )
             ok = "error" not in result
             await adapter.send_tool_result(corr_id, result, ok=ok)
 

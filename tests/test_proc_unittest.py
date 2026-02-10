@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import asyncio
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -12,6 +13,17 @@ from acp_hub.bus import EventBus
 from acp_hub.config import AgentSpec
 from acp_hub.events import Event
 from acp_hub.proc import ManagedAgentProcess
+
+
+def _make_spec(id: str, command: tuple[str, ...], sandbox: Path) -> AgentSpec:
+    """Build an AgentSpec for testing with the required new fields."""
+    return AgentSpec(
+        id=id,
+        agent="echo",
+        protocol="echo",
+        command=command,
+        sandbox=sandbox,
+    )
 
 
 class TestManagedAgentProcess(unittest.TestCase):
@@ -25,18 +37,19 @@ class TestManagedAgentProcess(unittest.TestCase):
 
         bus.subscribe(handler)
 
-        spec = AgentSpec(
-            id="test-echo",
-            protocol="echo",
-            command=("python3", "-c", "print('hello'); print('world')"),
-        )
-        proc = ManagedAgentProcess(spec=spec, bus=bus)
+        with tempfile.TemporaryDirectory() as td:
+            spec = _make_spec(
+                "test-echo",
+                ("python3", "-c", "print('hello'); print('world')"),
+                Path(td),
+            )
+            proc = ManagedAgentProcess(spec=spec, bus=bus)
 
-        async def run() -> None:
-            await proc.start()
-            await proc.wait()
+            async def run() -> None:
+                await proc.start()
+                await proc.wait()
 
-        asyncio.run(run())
+            asyncio.run(run())
 
         stdout_events = [e for e in received if e.kind == "agent.stdout"]
         self.assertEqual(len(stdout_events), 2)
@@ -53,18 +66,19 @@ class TestManagedAgentProcess(unittest.TestCase):
 
         bus.subscribe(handler)
 
-        spec = AgentSpec(
-            id="test-err",
-            protocol="echo",
-            command=("python3", "-c", "import sys; print('oops', file=sys.stderr)"),
-        )
-        proc = ManagedAgentProcess(spec=spec, bus=bus)
+        with tempfile.TemporaryDirectory() as td:
+            spec = _make_spec(
+                "test-err",
+                ("python3", "-c", "import sys; print('oops', file=sys.stderr)"),
+                Path(td),
+            )
+            proc = ManagedAgentProcess(spec=spec, bus=bus)
 
-        async def run() -> None:
-            await proc.start()
-            await proc.wait()
+            async def run() -> None:
+                await proc.start()
+                await proc.wait()
 
-        asyncio.run(run())
+            asyncio.run(run())
 
         stderr_events = [e for e in received if e.kind == "agent.stderr"]
         self.assertEqual(len(stderr_events), 1)
@@ -80,22 +94,23 @@ class TestManagedAgentProcess(unittest.TestCase):
 
         bus.subscribe(handler)
 
-        spec = AgentSpec(
-            id="test-json",
-            protocol="echo",
-            command=(
-                "python3",
-                "-c",
-                'import json; print(json.dumps({"jsonrpc": "2.0", "method": "test"}))',
-            ),
-        )
-        proc = ManagedAgentProcess(spec=spec, bus=bus)
+        with tempfile.TemporaryDirectory() as td:
+            spec = _make_spec(
+                "test-json",
+                (
+                    "python3",
+                    "-c",
+                    'import json; print(json.dumps({"jsonrpc": "2.0", "method": "test"}))',
+                ),
+                Path(td),
+            )
+            proc = ManagedAgentProcess(spec=spec, bus=bus)
 
-        async def run() -> None:
-            await proc.start()
-            await proc.wait()
+            async def run() -> None:
+                await proc.start()
+                await proc.wait()
 
-        asyncio.run(run())
+            asyncio.run(run())
 
         jsonrpc_events = [e for e in received if e.kind == "agent.jsonrpc"]
         self.assertEqual(len(jsonrpc_events), 1)
@@ -111,18 +126,15 @@ class TestManagedAgentProcess(unittest.TestCase):
 
         bus.subscribe(handler)
 
-        spec = AgentSpec(
-            id="test-life",
-            protocol="echo",
-            command=("python3", "-c", "pass"),
-        )
-        proc = ManagedAgentProcess(spec=spec, bus=bus)
+        with tempfile.TemporaryDirectory() as td:
+            spec = _make_spec("test-life", ("python3", "-c", "pass"), Path(td))
+            proc = ManagedAgentProcess(spec=spec, bus=bus)
 
-        async def run() -> None:
-            await proc.start()
-            await proc.wait()
+            async def run() -> None:
+                await proc.start()
+                await proc.wait()
 
-        asyncio.run(run())
+            asyncio.run(run())
 
         kinds = [e.kind for e in received]
         self.assertIn("agent.started", kinds)
@@ -138,20 +150,21 @@ class TestManagedAgentProcess(unittest.TestCase):
 
         bus.subscribe(handler)
 
-        spec = AgentSpec(
-            id="test-cat",
-            protocol="echo",
-            command=("python3", "-c", "import sys\nfor line in sys.stdin: print(line.strip())"),
-        )
-        proc = ManagedAgentProcess(spec=spec, bus=bus)
+        with tempfile.TemporaryDirectory() as td:
+            spec = _make_spec(
+                "test-cat",
+                ("python3", "-c", "import sys\nfor line in sys.stdin: print(line.strip())"),
+                Path(td),
+            )
+            proc = ManagedAgentProcess(spec=spec, bus=bus)
 
-        async def run() -> None:
-            await proc.start()
-            await proc.send_text("ping")
-            await proc.close_stdin()
-            await proc.wait()
+            async def run() -> None:
+                await proc.start()
+                await proc.send_text("ping")
+                await proc.close_stdin()
+                await proc.wait()
 
-        asyncio.run(run())
+            asyncio.run(run())
 
         stdout_events = [e for e in received if e.kind == "agent.stdout"]
         self.assertTrue(any(e.payload["text"] == "ping" for e in stdout_events))

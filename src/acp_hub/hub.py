@@ -40,7 +40,9 @@ class Hub:
         self.journal = JsonlJournal(path=config.journal_path)
         self.tool_runner = ToolRunner(
             self.bus,
-            cwd=str(config.workspace_root),
+            workspace_root=str(config.workspace_root),
+            shell_allowlist=config.shell_allowlist,
+            require_approval=config.require_tool_approval,
         )
 
         self._agents: dict[str, ManagedAgentProcess] = {}
@@ -165,8 +167,11 @@ class Hub:
                 # Check for tool calls
                 if adapter.is_tool_call(msg):
                     corr_id, tool_name, args = adapter.extract_tool_call(msg)
+                    # Tool execution is scoped to the agent's own sandbox.
+                    agent_proc = self._agents[event.agent_id]
                     result = await self.tool_runner.execute(
-                        event.agent_id, tool_name, args, corr_id
+                        event.agent_id, tool_name, args, corr_id,
+                        sandbox=agent_proc.spec.sandbox,
                     )
                     ok = "error" not in result
                     await adapter.send_tool_result(corr_id, result, ok=ok)

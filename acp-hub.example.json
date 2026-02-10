@@ -1,22 +1,18 @@
 {
   "workspace_root": ".",
   "journal_path": "runs/latest/events.jsonl",
-  "watch_paths": [
-    "."
-  ],
+  "watch_paths": ["."],
+  "require_tool_approval": false,
+  "shell_allowlist": ["git ", "npm ", "node ", "python3 ", "cargo ", "make "],
   "agents": [
     {
       "id": "codex",
-      "protocol": "codex_app_server",
-      "command": ["codex", "app-server"],
-      "cwd": ".",
+      "agent": "codex",
       "env": {}
     },
     {
       "id": "copilot",
-      "protocol": "acp",
-      "command": ["copilot", "--acp", "--stdio"],
-      "cwd": ".",
+      "agent": "copilot",
       "env": {}
     }
   ]
